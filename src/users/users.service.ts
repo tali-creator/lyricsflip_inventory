@@ -88,4 +88,21 @@ export class UsersService {
     if (!user || !user.refreshTokenHash) return false;
     return bcrypt.compare(refreshToken, user.refreshTokenHash);
   }
+
+  async findByCompany(companyId: string) {
+    return this.repo.find({
+      where: { companyId },
+      relations: ['roles'],
+    });
+  }
+
+  async assignCompany(userId: string, companyId: string) {
+    const user = await this.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    user.companyId = companyId;
+    await this.repo.save(user);
+    return user;
+  }
 }

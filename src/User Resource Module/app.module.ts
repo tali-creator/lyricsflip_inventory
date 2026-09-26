@@ -1,8 +1,10 @@
-import { Module } from "@nestjs/common";
+import { Module, MiddlewareConsumer, NestModule } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { APP_FILTER, APP_PIPE } from "@nestjs/core";
 import { UserModule } from "./user/user.module";
+import { CompanyModule } from "./company/company.module";
+import { CompanyIsolationMiddleware } from "./company/middleware/company-isolation.middleware";
 import { HttpExceptionFilter } from "./filters/http-exception.filter";
 import { ValidationPipe } from "./validation/validation.pipe";
 
@@ -26,6 +28,7 @@ import { ValidationPipe } from "./validation/validation.pipe";
       inject: [ConfigService],
     }),
     UserModule,
+    CompanyModule,
   ],
   providers: [
     {
@@ -38,4 +41,8 @@ import { ValidationPipe } from "./validation/validation.pipe";
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(CompanyIsolationMiddleware).forRoutes("*");
+  }
+}

@@ -3,11 +3,14 @@ import {
   Column,
   Entity,
   ManyToMany,
+  ManyToOne,
+  JoinColumn,
   JoinTable,
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
 import { Role } from '../rbac/entities/role.entity';
+import { Company } from '../companies/company.entity';
 import * as bcrypt from 'bcrypt';
 
 @Entity('users')
@@ -26,6 +29,13 @@ export class User {
 
   @Column({ type: 'text', nullable: true })
   refreshTokenHash: string | null;
+
+  @Column({ type: 'uuid', nullable: true })
+  companyId: string | null;
+
+  @ManyToOne(() => Company, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'companyId' })
+  company?: Relation<Company> | null;
 
   @ManyToMany(() => Role, { cascade: ['insert'] })
   @JoinTable({
